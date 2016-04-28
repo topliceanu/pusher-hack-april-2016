@@ -1,0 +1,23 @@
+{
+  "name": "pusher-hack-april-2016",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/topliceanu/pusher-hack-april-2016.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/topliceanu/pusher-hack-april-2016/issues"
+  },
+  "homepage": "https://github.com/topliceanu/pusher-hack-april-2016#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
