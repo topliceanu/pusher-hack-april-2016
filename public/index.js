@@ -1,4 +1,5 @@
-const INTERVAL = 1000;
+const CHUNK_INTERVAL = 1000;
+const DELAY = 10 * 1000;
 
 const screen = document.getElementById('screen');
 
@@ -20,7 +21,7 @@ const recordAndPlay = (mediaRecorder) => {
   const blobs = [];
   let stopped = false;
 
-  mediaRecorder.start(1000);
+  mediaRecorder.start(CHUNK_INTERVAL);
   mediaRecorder.ondataavailable = (event) => {
     blobs.push(event.data);
     if (stopped === true) {
@@ -33,7 +34,7 @@ const recordAndPlay = (mediaRecorder) => {
   setTimeout(() => {
     mediaRecorder.stop();
     stopped = true;
-  }, 10000);
+  }, DELAY);
 };
 
 const handleVideo = (mediaStream) => {
@@ -48,3 +49,7 @@ const handleError = (error) => {
 };
 
 getWebcamStream().then(handleVideo, handleError);
+
+document.getElementById('filter').addEventListener('change', (event) => {
+  screen.style.webkitFilter = `url(#${event.target.value})`;
+});
