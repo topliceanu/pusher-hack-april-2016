@@ -10,8 +10,6 @@ const getWebcamStream = () => {
       description: 'Please?!'
     }
   }
-  //return navigator.mediaDevices.getUserMedia(options);
-  //return MediaDevices.getUserMedia(options);
   return new Promise((resolve, reject) => {
     navigator.webkitGetUserMedia(options, resolve, reject);
   });
@@ -28,6 +26,7 @@ const recordAndPlay = (mediaRecorder) => {
       let megaBlob = new Blob(blobs, {type: 'video/webm'});
       screen.src = window.URL.createObjectURL(megaBlob);
       recordAndPlay(mediaRecorder);
+      dispatch(megaBlob);
     }
   };
 
@@ -50,6 +49,84 @@ const handleError = (error) => {
 
 getWebcamStream().then(handleVideo, handleError);
 
+// Change Filters.
 document.getElementById('filter').addEventListener('change', (event) => {
   screen.style.webkitFilter = `url(#${event.target.value})`;
 });
+
+// WebRTC config.
+const dataChannel = new DataChannel();
+dataChannel.userid = Math.floor(Math.random() * 100000);
+
+// Pusher Setup.
+const pusher = new Pusher('71d7257356f3239c0f33', {
+  cluster: 'eu',
+  encrypted: true
+});
+pusher.log = console.log.bind(console);
+
+let socketId = null;
+
+// WebRTC Signaling.
+pusher.connection.bind('state_change', (states) => {
+  switch (states.current) {
+    case 'connected':
+      socketId = pusher.connection.socket_id;
+      break;
+    case 'disconnected':
+    case 'failed':
+    case 'unavailable':
+      break;
+  }
+});
+
+dataChannel.openSignalingChannel = (config) => {
+  const channel = config.channel || this.channel || 'default-channel'; // !?!?
+  const socket = {
+    channel: channel,
+    send: (message) => {
+      const request = new Request('/message', {
+        method: 'POST',
+        headers: new Headers({'Content-Type': 'application/json'}),
+        body: JSON.stringify({
+          socketId: socketId,
+          channel: channel,
+          message: message
+        })
+      });
+
+      fetch(request).catch((error) => {
+        console.log('error:', error);
+      });
+    }
+  };
+
+  const pusherChannel = pusher.subscribe(channel);
+  pusherChannel.bind('pusher:subscription_succeeded', () => {
+    if (config.callback) {
+      config.callback(socket);
+    }
+  });
+  pusherChannel.bind('message', (message) => {
+    config.onmessage(message);
+  });
+};
+
+// WebRTC Communication
+const mainChannel = 'main-channel';
+
+if (window.location.hash === '#server') {
+  dataChannel.open(mainChannel);
+}
+dataChannel.connect(mainChannel);
+
+dataChannel.onopen = (userId) => {
+  console.log('A new user joined', userId);
+};
+dataChannel.onmessage = (message, userId) => {
+  console.log('onmessage: ', message, userId);
+}
+
+const dispatch = (blob) => {
+  dataChannel.send(blob, mainChannel);
+};
