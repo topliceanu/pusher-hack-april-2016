@@ -12,4 +12,4 @@ const credentials = {
 };
 
 const server = https.createServer(credentials, app);
-server.listen(3000)
+server.listen(process.env.PORT);

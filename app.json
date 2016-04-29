@@ -1,0 +1,8 @@
+{
+  "name": "Node.js",
+  "description": "WebRTC, MediaStream, Pusher",
+  "repository": "https://github.com/topliceanu/pusher-hack-april-2016",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "express", "static", "pusher", "webrtc", "mediastream"],
+  "image": "heroku/nodejs"
+}
