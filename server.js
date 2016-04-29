@@ -1,4 +1,4 @@
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 const express = require('express');
@@ -6,10 +6,5 @@ const express = require('express');
 const app = express()
 app.use(express.static('public'));
 
-const credentials = {
-  key: fs.readFileSync('./ssl/key.pem'),
-  cert: fs.readFileSync('./ssl/cert.pem')
-};
-
-const server = https.createServer(credentials, app);
+const server = http.createServer(app);
 server.listen(process.env.PORT);
